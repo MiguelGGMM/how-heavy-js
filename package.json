@@ -1,0 +1,16 @@
+{
+  "name": "how-heavy",
+  "version": "1.0.0",
+  "description": "This app prints a tree of libraries indicating the weight of each one in mb and % of total",
+  "main": "size_calc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
+  }
+}
