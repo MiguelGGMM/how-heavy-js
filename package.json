@@ -5,7 +5,7 @@
   "keywords": ["heavy", "cost", "modules", "libraries"],
   "main": "size_calc.js",
   "bin": {
-    "calcSize": "./size_calc.js"
+    "howHeavy": "./size_calc.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
