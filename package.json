@@ -2,10 +2,15 @@
   "name": "how-heavy",
   "version": "1.0.0",
   "description": "This app prints a tree of libraries indicating the weight of each one in mb and % of total",
+  "keywords": ["heavy", "cost", "modules", "libraries"],
   "main": "size_calc.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bin": {
+    "calcSize": "./size_calc.js"
   },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node size_calc.js"
+  },  
   "author": "",
   "license": "MIT",
   "dependencies": {
