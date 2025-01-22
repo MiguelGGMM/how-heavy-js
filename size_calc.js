@@ -4,16 +4,19 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
-const minPercentageArg = process.argv.find(arg => arg.startsWith('--min-percentage='));
+const minPercentageArg = process.argv.find(arg => arg.startsWith('--p='));
 const minPercentage = minPercentageArg ? parseFloat(minPercentageArg.split('=')[1]) : 2;
 
 function getFolderSizeWithDetails(folderPath) {
     let totalSize = 0;
+    let processedCount = 0;
 
     function calculateSize(dir) {
         const entries = fs.readdirSync(dir);
         let size = 0;
         const children = [];
+        const peerDependencies = new Set();
+        const nodeName = path.basename(dir);
 
         for (const entry of entries) {
             const entryPath = path.join(dir, entry);
@@ -22,20 +25,41 @@ function getFolderSizeWithDetails(folderPath) {
                 const child = calculateSize(entryPath);
                 children.push(child);
                 size += child.size;
+                child.peerDependencies.forEach(dep => {
+                    if(!(dep.startsWith(nodeName + "/") && nodeName.startsWith("@"))) {
+                        peerDependencies.add(dep)
+                    }
+                });
             } else {
                 size += stats.size;
+            }
+
+            processedCount++;
+            if (processedCount % 100 === 0) {
+                process.stdout.write(`\rProcessed ${processedCount} entries...`);
+            }
+        }
+
+        // Check for peer dependencies in the current package
+        const packageJsonPath = path.join(dir, 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+            if (packageJson.peerDependencies && nodeName !== 'node_modules') {
+                Object.keys(packageJson.peerDependencies).forEach(dep => peerDependencies.add(dep));
             }
         }
 
         return {
-            name: path.basename(dir),
+            name: nodeName,
             size,
+            peerDependencies,
             children: children.sort((a, b) => b.size - a.size),
         };
     }
 
     const rootDetails = calculateSize(folderPath);
     totalSize = rootDetails.size;
+    console.log('\n'); // Clear progress line
     return { totalSize, details: rootDetails };
 }
 
@@ -58,7 +82,11 @@ function printTree(node, totalSize, minPercentage, devDependencies, indent = '')
     const color = isDevDependency ? chalk.gray : chalk.bold;
 
     if (percentage >= minPercentage) {
-        console.log(`${indent}- ${chalk.yellow(`[${percentage}%]`)} ${color(node.name)} ${chalk.gray(`(${sizeMB} MB)`)}`);
+        const peerText = (node.peerDependencies.size > 0 && node.name != "node_modules") 
+            ? chalk.blue(`(peer deps: ${Array.from(node.peerDependencies).join(', ')})`) 
+            : '';
+
+        console.log(`${indent}- ${chalk.yellow(`[${percentage}%]`)} ${color(node.name)} ${chalk.gray(`(${sizeMB} MB)`)} ${peerText}`);
 
         for (const child of node.children) {
             printTree(child, totalSize, minPercentage, devDependencies, indent + '  ');
