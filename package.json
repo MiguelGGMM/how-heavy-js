@@ -7,6 +7,10 @@
   "bin": {
     "howHeavy": "./size_calc.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/MiguelGGMM/how-heavy-js.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node size_calc.js"

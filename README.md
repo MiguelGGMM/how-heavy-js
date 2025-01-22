@@ -7,4 +7,4 @@
 
  Peer deps added
 
- Run 'npm install -g howHeavy', then you can use "howHeavy" on any project
+ Run 'npm link', then you can use "howHeavy" on any project
